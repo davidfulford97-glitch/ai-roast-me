@@ -271,7 +271,7 @@
 
         <footer>
             <p>🔒 Your photo is deleted immediately after roasting. We don't store anything.</p>
-            <p style="margin-top:8px">💚 Support us: Cash App {{ cashapp_tag }} • Venmo {{ venmo_tag }}</p>
+            <p style="margin-top:8px">💚 Support us: Cash App {{ cashapp_tag }}</p>
             <p style="margin-top:8px"><a href="#">Terms</a> • <a href="#">Privacy</a> • <a href="#">Contact</a></p>
             <p style="margin-top:8px;opacity:0.5">Made with 🔥 by AI Roast Me</p>
         </footer>
@@ -283,7 +283,6 @@
             <h2>🔥 You're out of free roasts!</h2>
             <p>Get more roasts for $3 — or unlock <strong>1 FREE roast</strong> by sharing this app.</p>
             <a href="https://cash.app/{{ cashapp_tag.replace('$','') }}/3" target="_blank" class="pay-btn cashapp">💚 Pay $3 via Cash App</a>
-            <a href="https://venmo.com/{{ venmo_tag.replace('@','') }}" target="_blank" class="pay-btn venmo">💙 Pay $3 via Venmo</a>
             <div class="paywall-divider">OR</div>
             <button class="pay-btn share" onclick="unlockBySharing()">🎵 Share to unlock 1 FREE roast</button>
             <button class="paywall-close" onclick="document.getElementById('paywall').classList.remove('show')">Maybe later</button>

@@ -16,8 +16,8 @@ if not GEMINI_API_KEY:
 VISION_MODEL = os.environ.get("VISION_MODEL", "gemini-flash-lite-latest")
 
 # Cash App / Venmo for payments (no Stripe needed)
-CASHAPP_TAG = os.environ.get("CASHAPP_TAG", "$aireastme")
-VENMO_TAG = os.environ.get("VENMO_TAG", "@airoastme")
+CASHAPP_TAG = os.environ.get("CASHAPP_TAG", "$davidfulfor69")
+VENMO_TAG = os.environ.get("VENMO_TAG", "")
 
 # Flask
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
