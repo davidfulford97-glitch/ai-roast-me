@@ -9,10 +9,8 @@ services:
         sync: false
       - key: CASHAPP_TAG
         value: "$aireastme"
-        sync: false
       - key: VENMO_TAG
         value: "@airoastme"
-        sync: false
       - key: SECRET_KEY
         generateValue: true
     plan: free
