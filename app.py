@@ -1,7 +1,9 @@
-# AI Roast Me - Flask Application (Gemini + Cash App version)
+# AI Roast Me - Flask Application (Gemini + Cash App + Referral version)
 
 import os
 import uuid
+import json
+import time
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_from_directory, session
 from flask_cors import CORS
@@ -17,6 +19,20 @@ CORS(app)
 
 UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
 
+# Referral storage (simple JSON file - works for free tier)
+REFERRALS_FILE = Path(__file__).parent / "referrals.json"
+if not REFERRALS_FILE.exists():
+    REFERRALS_FILE.write_text("{}")
+
+def load_referrals():
+    try:
+        return json.loads(REFERRALS_FILE.read_text())
+    except:
+        return {}
+
+def save_referrals(data):
+    REFERRALS_FILE.write_text(json.dumps(data))
+
 # Google Gemini client
 from google import genai
 from google.genai import types
@@ -28,6 +44,27 @@ if GEMINI_API_KEY:
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def get_user_id():
+    """Get or create a unique user ID for this session."""
+    if "user_id" not in session:
+        session["user_id"] = uuid.uuid4().hex[:12]
+    return session["user_id"]
+
+
+def get_referral_link(user_id):
+    """Generate a referral link for a user."""
+    base_url = request.host_url.rstrip("/")
+    return f"{base_url}?ref={user_id}"
+
+
+def get_total_free_roasts(user_id):
+    """Calculate total free roasts: base + referral bonuses."""
+    referrals = load_referrals()
+    user_data = referrals.get(user_id, {"referrals": 0, "bonus_roasts": 0})
+    bonus = user_data.get("bonus_roasts", 0)
+    return FREE_ROASTS + bonus
 
 
 def generate_roast(image_paths, style="savage", mode="solo"):
@@ -61,8 +98,37 @@ def generate_roast(image_paths, style="savage", mode="solo"):
 
 @app.route("/")
 def index():
+    user_id = get_user_id()
+
     if "roasts_used" not in session:
         session["roasts_used"] = 0
+
+    # Check for referral code in URL
+    ref_code = request.args.get("ref")
+    if ref_code and ref_code != user_id:
+        # This visitor was referred by someone
+        referrals = load_referrals()
+        if ref_code in referrals:
+            # Mark this user as referred (only count once)
+            if session.get("referred_by") != ref_code:
+                session["referred_by"] = ref_code
+                # Give the referrer a bonus roast
+                referrals[ref_code]["referrals"] = referrals[ref_code].get("referrals", 0) + 1
+                referrals[ref_code]["bonus_roasts"] = referrals[ref_code].get("bonus_roasts", 0) + 2
+                save_referrals(referrals)
+        elif ref_code not in referrals:
+            # Referrer doesn't exist yet, but track it
+            pass
+
+    # Make sure this user exists in referrals
+    referrals = load_referrals()
+    if user_id not in referrals:
+        referrals[user_id] = {"referrals": 0, "bonus_roasts": 0}
+        save_referrals(referrals)
+
+    total_free = get_total_free_roasts(user_id)
+    referral_link = get_referral_link(user_id)
+    user_referrals = referrals.get(user_id, {}).get("referrals", 0)
 
     return render_template(
         "index.html",
@@ -71,8 +137,11 @@ def index():
         gemini_configured=bool(GEMINI_API_KEY),
         styles=ROAST_STYLES,
         modes=ROAST_MODES,
-        free_roasts=FREE_ROASTS,
+        free_roasts=total_free,
         roasts_used=session.get("roasts_used", 0),
+        referral_link=referral_link,
+        user_referrals=user_referrals,
+        user_id=user_id,
     )
 
 
@@ -159,14 +228,19 @@ def roast():
     if mode not in ROAST_MODES:
         mode = "solo"
 
+    user_id = get_user_id()
+    total_free = get_total_free_roasts(user_id)
     roasts_used = session.get("roasts_used", 0)
-    if roasts_used >= FREE_ROASTS:
+
+    if roasts_used >= total_free:
         return jsonify({
             "error": "Free roast limit reached",
             "needs_payment": True,
             "cashapp": CASHAPP_TAG,
             "venmo": VENMO_TAG,
-            "message": f"You've used your free roasts! Donate $3 via Cash App ({CASHAPP_TAG}) or Venmo ({VENMO_TAG}) and refresh. Or share to unlock more!",
+            "referral_link": get_referral_link(user_id),
+            "user_referrals": load_referrals().get(user_id, {}).get("referrals", 0),
+            "message": f"You've used all your free roasts! Share your link with friends to get 2 FREE roasts per person who visits. Or donate $3 via Cash App ({CASHAPP_TAG}).",
         }), 402
 
     try:
@@ -181,6 +255,7 @@ def roast():
             except Exception:
                 pass
 
+        remaining = total_free - (roasts_used + 1)
         return jsonify({
             "success": True,
             "roast": roast_text,
@@ -188,7 +263,8 @@ def roast():
             "style_emoji": ROAST_STYLES[style]["emoji"],
             "mode": ROAST_MODES[mode]["name"],
             "mode_emoji": ROAST_MODES[mode]["emoji"],
-            "roasts_remaining": FREE_ROASTS - (roasts_used + 1),
+            "roasts_remaining": remaining,
+            "total_free": total_free,
         })
 
     except Exception as e:
@@ -200,10 +276,29 @@ def share_unlock():
     """Unlock one more free roast after user shares (viral loop)."""
     session["roasts_used"] = max(0, session.get("roasts_used", 0) - 1)
     session.modified = True
+    user_id = get_user_id()
+    total_free = get_total_free_roasts(user_id)
     return jsonify({
         "success": True,
-        "roasts_remaining": FREE_ROASTS - session["roasts_used"],
-        "message": "Unlocked! Share again for another free roast 🔥",
+        "roasts_remaining": total_free - session["roasts_used"],
+        "message": "Unlocked! Share your referral link for 2 more free roasts per friend 🔥",
+    })
+
+
+@app.route("/referral-stats")
+def referral_stats():
+    """Get referral stats for the current user."""
+    user_id = get_user_id()
+    referrals = load_referrals()
+    user_data = referrals.get(user_id, {"referrals": 0, "bonus_roasts": 0})
+    return jsonify({
+        "user_id": user_id,
+        "referral_link": get_referral_link(user_id),
+        "total_referrals": user_data.get("referrals", 0),
+        "bonus_roasts": user_data.get("bonus_roasts", 0),
+        "total_free_roasts": get_total_free_roasts(user_id),
+        "roasts_used": session.get("roasts_used", 0),
+        "roasts_remaining": get_total_free_roasts(user_id) - session.get("roasts_used", 0),
     })
 
 
