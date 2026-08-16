@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Roast Me 🔥 — Get Roasted by AI for FREE</title>
+    <meta name="description" content="Upload your photo. Get brutally roasted by AI. Free. Solo, group, battle, or celebrity roast modes.">
+    <meta property="og:title" content="AI Roast Me 🔥">
+    <meta property="og:description" content="Upload your photo. Get brutally roasted by AI. Free.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0a; --card: #141414; --accent: #ff4757; --accent2: #ff6b6b;
+            --text: #ffffff; --muted: #888; --border: #222;
+            --cashapp: #00d632; --venmo: #3d95ce;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        .bg-glow { position: fixed; top: -50%; left: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,71,87,0.15), transparent 70%); border-radius: 50%; pointer-events: none; animation: float 8s ease-in-out infinite; }
+        .bg-glow2 { position: fixed; bottom: -30%; right: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,107,107,0.1), transparent 70%); border-radius: 50%; pointer-events: none; animation: float 10s ease-in-out infinite reverse; }
+        @keyframes float { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,-30px); } }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+
+        header { text-align: center; padding: 30px 0 15px; }
+        .logo { font-size: 3.5rem; margin-bottom: 10px; }
+        h1 { font-size: 2.8rem; font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #ff4757, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; }
+        .tagline { font-size: 1.1rem; color: var(--muted); margin-top: 10px; font-weight: 500; }
+        .tagline strong { color: var(--accent); }
+        .free-badge { display: inline-block; background: var(--cashapp); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; margin-top: 10px; }
+        .social-proof { display: flex; justify-content: center; gap: 20px; margin: 15px 0; font-size: 0.85rem; color: var(--muted); flex-wrap: wrap; }
+        .social-proof span { display: flex; align-items: center; gap: 5px; }
+        .social-proof strong { color: var(--text); }
+
+        /* Mode selector */
+        .modes { margin: 15px 0; }
+        .modes-label { text-align: center; font-weight: 700; margin-bottom: 10px; font-size: 0.95rem; }
+        .mode-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .mode-card { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .mode-card:hover { border-color: var(--accent); }
+        .mode-card.selected { border-color: var(--accent); background: rgba(255,71,87,0.1); }
+        .mode-card .emoji { font-size: 1.5rem; }
+        .mode-card .name { font-weight: 700; font-size: 0.75rem; margin-top: 4px; }
+
+        .upload-zone { background: var(--card); border: 2px dashed var(--border); border-radius: 20px; padding: 40px 25px; text-align: center; cursor: pointer; transition: all 0.3s; margin: 15px 0; }
+        .upload-zone:hover { border-color: var(--accent); background: #181818; transform: translateY(-2px); }
+        .upload-zone.dragover { border-color: var(--accent); background: rgba(255,71,87,0.05); }
+        .upload-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .upload-text { font-size: 1rem; font-weight: 600; }
+        .upload-sub { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+        #fileInput, #fileInput2 { display: none; }
+
+        /* Battle mode: two uploads side by side */
+        .battle-uploads { display: none; gap: 12px; margin: 15px 0; }
+        .battle-uploads.show { display: grid; grid-template-columns: 1fr 1fr; }
+        .battle-slot { background: var(--card); border: 2px dashed var(--border); border-radius: 16px; padding: 30px 15px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+        .battle-slot:hover { border-color: var(--accent); }
+        .battle-slot img { width: 100%; border-radius: 12px; margin-bottom: 8px; }
+        .battle-slot .vs-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 2rem; font-weight: 900; color: var(--accent); pointer-events: none; }
+        .battle-slot .slot-label { font-weight: 700; font-size: 0.85rem; color: var(--muted); }
+        .battle-slot.filled { border-style: solid; border-color: var(--accent); }
+
+        .preview { display: none; margin: 15px 0; }
+        .preview img { width: 100%; max-width: 350px; border-radius: 16px; display: block; margin: 0 auto; }
+        .preview-actions { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
+        .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: inherit; transition: all 0.2s; }
+        .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+
+        .styles { display: none; margin: 15px 0; }
+        .styles-label { text-align: center; font-weight: 700; margin-bottom: 10px; font-size: 0.95rem; }
+        .style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .style-card { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 12px 6px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .style-card:hover { border-color: var(--accent); }
+        .style-card.selected { border-color: var(--accent); background: rgba(255,71,87,0.1); }
+        .style-card .emoji { font-size: 1.5rem; }
+        .style-card .name { font-weight: 700; font-size: 0.75rem; margin-top: 4px; }
+
+        .roast-btn { display: none; width: 100%; background: linear-gradient(135deg, #ff4757, #ff6b6b); color: white; border: none; padding: 18px; border-radius: 14px; font-size: 1.3rem; font-weight: 800; cursor: pointer; font-family: inherit; transition: all 0.2s; margin: 15px 0; letter-spacing: 0.5px; }
+        .roast-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,71,87,0.3); }
+        .roast-btn:active { transform: translateY(0); }
+        .roast-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .roast-btn .price { font-size: 0.9rem; font-weight: 600; opacity: 0.9; }
+
+        .roast-result { display: none; background: var(--card); border-radius: 20px; padding: 30px; margin: 15px 0; text-align: center; border: 1px solid var(--border); animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .roast-result .badges { margin-bottom: 15px; }
+        .roast-result .badge { display: inline-block; background: rgba(255,71,87,0.15); color: var(--accent); padding: 5px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin: 0 4px; }
+        .roast-text { font-size: 1.25rem; line-height: 1.6; font-weight: 600; white-space: pre-wrap; text-align: left; }
+        .roast-actions { display: flex; gap: 10px; justify-content: center; margin-top: 25px; flex-wrap: wrap; }
+        .share-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: inherit; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 0.95rem; }
+        .share-btn:hover { border-color: var(--accent); }
+        .share-btn.tiktok:hover { border-color: #00f2ea; }
+        .share-btn.twitter:hover { border-color: #1da1f2; }
+
+        .loading { display: none; text-align: center; padding: 40px; }
+        .loading .spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--muted); font-weight: 600; }
+        .loading-sub { color: var(--muted); font-size: 0.85rem; margin-top: 5px; }
+
+        .error { display: none; background: rgba(255,71,87,0.1); border: 1px solid var(--accent); color: var(--accent); padding: 15px; border-radius: 10px; text-align: center; margin: 15px 0; font-weight: 600; }
+
+        .paywall { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .paywall.show { display: flex; }
+        .paywall-card { background: var(--card); border-radius: 20px; padding: 30px; max-width: 400px; width: 100%; text-align: center; border: 1px solid var(--border); animation: slideUp 0.3s ease; }
+        .paywall-card h2 { font-size: 1.5rem; margin-bottom: 10px; }
+        .paywall-card p { color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+        .pay-btn { display: block; width: 100%; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; border: none; margin-bottom: 10px; text-decoration: none; text-align: center; font-family: inherit; transition: all 0.2s; }
+        .pay-btn.cashapp { background: var(--cashapp); color: #000; }
+        .pay-btn.cashapp:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,214,50,0.3); }
+        .pay-btn.venmo { background: var(--venmo); color: #fff; }
+        .pay-btn.venmo:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(61,149,206,0.3); }
+        .pay-btn.share { background: transparent; border: 2px solid var(--border); color: var(--text); }
+        .pay-btn.share:hover { border-color: var(--accent); }
+        .paywall-divider { display: flex; align-items: center; gap: 10px; margin: 15px 0; color: var(--muted); font-size: 0.85rem; }
+        .paywall-divider::before, .paywall-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .paywall-close { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; margin-top: 10px; font-family: inherit; }
+        .paywall-close:hover { color: var(--text); }
+
+        footer { text-align: center; padding: 30px 0; color: var(--muted); font-size: 0.85rem; }
+        footer a { color: var(--muted); text-decoration: none; }
+        footer a:hover { color: var(--text); }
+
+        .examples { margin: 25px 0; }
+        .examples h3 { text-align: center; font-size: 1.1rem; margin-bottom: 15px; color: var(--muted); }
+        .examples-grid { display: grid; gap: 12px; }
+        .example-card { background: var(--card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
+        .example-card .emoji { font-size: 1.5rem; }
+        .example-card .text { margin-top: 8px; font-size: 0.95rem; color: #ccc; font-style: italic; }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2.2rem; }
+            .mode-grid { grid-template-columns: repeat(2, 1fr); }
+            .style-grid { grid-template-columns: repeat(2, 1fr); }
+            .battle-uploads.show { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow2"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">🔥</div>
+            <h1>AI Roast Me</h1>
+            <p class="tagline">Upload your photo. <strong>Get brutally roasted by AI.</strong></p>
+            <div class="free-badge">✅ 2 FREE ROASTS</div>
+            <div class="social-proof">
+                <span>👥 <strong>12,847</strong> roasted</span>
+                <span>⭐ <strong>4.9</strong> rating</span>
+                <span>⚔️ <strong>Battle mode</strong> now live</span>
+            </div>
+        </header>
+
+        {% if not gemini_configured %}
+        <div class="error" style="display:block">
+            ⚠️ Demo mode: Set GEMINI_API_KEY to enable AI roasts. Get a FREE key at aistudio.google.com/apikey
+        </div>
+        {% endif %}
+
+        <!-- Mode selector -->
+        <div class="modes">
+            <div class="modes-label">Choose your roast mode:</div>
+            <div class="mode-grid" id="modeGrid">
+                {% for key, mode in modes.items() %}
+                <div class="mode-card" data-mode="{{ key }}" onclick="selectMode('{{ key }}')">
+                    <div class="emoji">{{ mode.emoji }}</div>
+                    <div class="name">{{ mode.name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Single upload (solo, group, celebrity) -->
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Drop your photo here</div>
+            <div class="upload-sub">or click to browse • PNG, JPG, WebP • Max 10MB</div>
+        </div>
+        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp">
+
+        <!-- Battle mode: two uploads -->
+        <div class="battle-uploads" id="battleUploads">
+            <div class="battle-slot" id="slot1" onclick="document.getElementById('fileInput').click()">
+                <div class="slot-label">👤 Person 1</div>
+                <div class="upload-icon" style="margin-top:10px">📸</div>
+                <div class="upload-sub">Click to upload</div>
+            </div>
+            <div class="battle-slot" id="slot2" onclick="document.getElementById('fileInput2').click()">
+                <div class="slot-label">👤 Person 2</div>
+                <div class="upload-icon" style="margin-top:10px">📸</div>
+                <div class="upload-sub">Click to upload</div>
+            </div>
+        </div>
+        <input type="file" id="fileInput2" accept="image/png,image/jpeg,image/webp">
+
+        <!-- Preview (single mode) -->
+        <div class="preview" id="preview">
+            <img id="previewImg" src="" alt="Your photo">
+            <div class="preview-actions">
+                <button class="btn-secondary" onclick="resetUpload()">↩️ Change photo</button>
+            </div>
+        </div>
+
+        <!-- Style selector -->
+        <div class="styles" id="styles">
+            <div class="styles-label">Roast style:</div>
+            <div class="style-grid" id="styleGrid">
+                {% for key, style in styles.items() %}
+                <div class="style-card" data-style="{{ key }}" onclick="selectStyle('{{ key }}')">
+                    <div class="emoji">{{ style.emoji }}</div>
+                    <div class="name">{{ style.name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button class="roast-btn" id="roastBtn" onclick="getRoast()">
+            🔥 ROAST ME <span class="price">— FREE</span>
+        </button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">AI is analyzing your photo...</div>
+            <div class="loading-sub" id="loadingSub">Preparing to destroy you 🔥</div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="roast-result" id="roastResult">
+            <div class="badges">
+                <span class="badge" id="modeBadge">🔥 Solo</span>
+                <span class="badge" id="styleBadge">🔥 Savage</span>
+            </div>
+            <div class="roast-text" id="roastText"></div>
+            <div class="roast-actions">
+                <button class="share-btn tiktok" onclick="shareTikTok()">🎵 TikTok</button>
+                <button class="share-btn twitter" onclick="shareTwitter()">🐦 X</button>
+                <button class="share-btn" onclick="copyRoast()">📋 Copy</button>
+                <button class="share-btn" onclick="location.reload()">🔄 Roast again</button>
+            </div>
+        </div>
+
+        <div class="examples">
+            <h3>🔥 Sample Roasts</h3>
+            <div class="examples-grid">
+                <div class="example-card">
+                    <div class="emoji">😎</div>
+                    <div class="text">"Bro's wearing sunglasses indoors and still can't hide the fact that his haircut looks like it was done by a blind gardener with a weed whacker."</div>
+                </div>
+                <div class="example-card">
+                    <div class="emoji">⚔️</div>
+                    <div class="text">"Person 1 looks like they peaked in middle school. Person 2 looks like they haven't peaked yet. WINNER: Person 1 — at least they peaked."</div>
+                </div>
+                <div class="example-card">
+                    <div class="emoji">👵</div>
+                    <div class="text">"Oh honey, that shirt is... certainly a choice. My cat Pickles has better fashion sense and he's been dead for 6 years."</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🔒 Your photo is deleted immediately after roasting. We don't store anything.</p>
+            <p style="margin-top:8px">💚 Support us: Cash App {{ cashapp_tag }} • Venmo {{ venmo_tag }}</p>
+            <p style="margin-top:8px"><a href="#">Terms</a> • <a href="#">Privacy</a> • <a href="#">Contact</a></p>
+            <p style="margin-top:8px;opacity:0.5">Made with 🔥 by AI Roast Me</p>
+        </footer>
+    </div>
+
+    <!-- Paywall -->
+    <div class="paywall" id="paywall">
+        <div class="paywall-card">
+            <h2>🔥 You're out of free roasts!</h2>
+            <p>Get more roasts for $3 — or unlock <strong>1 FREE roast</strong> by sharing this app.</p>
+            <a href="https://cash.app/{{ cashapp_tag.replace('$','') }}/3" target="_blank" class="pay-btn cashapp">💚 Pay $3 via Cash App</a>
+            <a href="https://venmo.com/{{ venmo_tag.replace('@','') }}" target="_blank" class="pay-btn venmo">💙 Pay $3 via Venmo</a>
+            <div class="paywall-divider">OR</div>
+            <button class="pay-btn share" onclick="unlockBySharing()">🎵 Share to unlock 1 FREE roast</button>
+            <button class="paywall-close" onclick="document.getElementById('paywall').classList.remove('show')">Maybe later</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedStyle = 'savage';
+        let selectedMode = 'solo';
+        let uploadedFilename = null;
+        let uploadedFilename2 = null;
+        let battleSlotTarget = 1; // which slot we're uploading to in battle mode
+
+        document.getElementById('fileInput').addEventListener('change', handleFile);
+        document.getElementById('fileInput2').addEventListener('change', (e) => { battleSlotTarget = 2; handleFile(e); });
+
+        // Drag and drop
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.classList.remove('dragover'); if (e.dataTransfer.files.length) handleFile({ target: { files: e.dataTransfer.files } }); });
+
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
+
+            // Show/hide battle uploads vs single upload
+            const isBattle = mode === 'battle';
+            document.getElementById('battleUploads').classList.toggle('show', isBattle);
+            document.getElementById('uploadZone').style.display = isBattle ? 'none' : 'block';
+
+            // Reset uploads when switching modes
+            resetUpload();
+            if (isBattle) {
+                document.getElementById('slot1').innerHTML = '<div class="slot-label">👤 Person 1</div><div class="upload-icon" style="margin-top:10px">📸</div><div class="upload-sub">Click to upload</div>';
+                document.getElementById('slot2').innerHTML = '<div class="slot-label">👤 Person 2</div><div class="upload-icon" style="margin-top:10px">📸</div><div class="upload-sub">Click to upload</div>';
+                document.getElementById('slot1').classList.remove('filled');
+                document.getElementById('slot2').classList.remove('filled');
+                uploadedFilename = null;
+                uploadedFilename2 = null;
+            }
+
+            // Update UI labels
+            const loadingTexts = {
+                solo: 'AI is analyzing your photo...',
+                group: 'AI is roasting everyone in the photo...',
+                battle: 'AI is preparing the roast battle...',
+                celebrity: 'AI is preparing your celebrity roast...',
+            };
+            document.getElementById('loadingText').textContent = loadingTexts[mode] || loadingTexts.solo;
+
+            // Show styles and roast button if photo already uploaded (non-battle)
+            if (!isBattle && uploadedFilename) {
+                document.getElementById('styles').style.display = 'block';
+                document.getElementById('roastBtn').style.display = 'block';
+            }
+        }
+
+        function selectStyle(style) {
+            selectedStyle = style;
+            document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`[data-style="${style}"]`).classList.add('selected');
+        }
+
+        async function handleFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) { showError('Please upload a PNG, JPG, or WebP image.'); return; }
+            if (file.size > 10 * 1024 * 1024) { showError('File too large. Max 10MB.'); return; }
+
+            const formData = new FormData();
+            formData.append('photo', file);
+
+            const endpoint = selectedMode === 'battle' && battleSlotTarget === 2 ? '/upload-second' : '/upload';
+
+            try {
+                const res = await fetch(endpoint, { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.error) { showError(data.error); return; }
+
+                if (selectedMode === 'battle') {
+                    if (battleSlotTarget === 1) {
+                        uploadedFilename = data.filename;
+                        const slot = document.getElementById('slot1');
+                        slot.innerHTML = `<img src="${data.photo_url}" alt="Person 1"><div class="slot-label">✅ Person 1</div>`;
+                        slot.classList.add('filled');
+                    } else {
+                        uploadedFilename2 = data.filename;
+                        const slot = document.getElementById('slot2');
+                        slot.innerHTML = `<img src="${data.photo_url}" alt="Person 2"><div class="slot-label">✅ Person 2</div>`;
+                        slot.classList.add('filled');
+                    }
+                    // Show styles + roast button when both photos uploaded
+                    if (uploadedFilename && uploadedFilename2) {
+                        document.getElementById('styles').style.display = 'block';
+                        document.getElementById('roastBtn').style.display = 'block';
+                    }
+                } else {
+                    uploadedFilename = data.filename;
+                    document.getElementById('previewImg').src = data.photo_url;
+                    document.getElementById('uploadZone').style.display = 'none';
+                    document.getElementById('preview').style.display = 'block';
+                    document.getElementById('styles').style.display = 'block';
+                    document.getElementById('roastBtn').style.display = 'block';
+                }
+            } catch (err) { showError('Upload failed. Try again.'); }
+        }
+
+        async function getRoast() {
+            if (selectedMode === 'battle') {
+                if (!uploadedFilename || !uploadedFilename2) { showError('Upload both photos for Roast Battle!'); return; }
+            } else if (!uploadedFilename) { return; }
+
+            document.getElementById('roastBtn').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+
+            try {
+                const body = { filename: uploadedFilename, style: selectedStyle, mode: selectedMode };
+                if (uploadedFilename2) body.filename2 = uploadedFilename2;
+
+                const res = await fetch('/roast', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                });
+                const data = await res.json();
+
+                if (res.status === 402 && data.needs_payment) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('paywall').classList.add('show');
+                    document.getElementById('roastBtn').style.display = 'block';
+                    return;
+                }
+                if (data.error) { showError(data.error); return; }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('modeBadge').textContent = `${data.mode_emoji} ${data.mode}`;
+                document.getElementById('styleBadge').textContent = `${data.style_emoji} ${data.style}`;
+                document.getElementById('roastText').textContent = data.roast;
+                document.getElementById('roastResult').style.display = 'block';
+                document.getElementById('preview').style.display = 'none';
+                document.getElementById('battleUploads').style.display = 'none';
+                document.getElementById('styles').style.display = 'none';
+            } catch (err) { showError('Roast failed. Please try again.'); }
+        }
+
+        async function unlockBySharing() {
+            window.open('https://www.tiktok.com/upload', '_blank');
+            try {
+                const res = await fetch('/share-unlock', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('paywall').classList.remove('show');
+                    alert('✅ Free roast unlocked! Upload a new photo to get roasted again 🔥');
+                    location.reload();
+                }
+            } catch (err) { showError('Failed to unlock. Try again.'); }
+        }
+
+        function resetUpload() {
+            uploadedFilename = null;
+            uploadedFilename2 = null;
+            document.getElementById('preview').style.display = 'none';
+            document.getElementById('styles').style.display = 'none';
+            document.getElementById('roastBtn').style.display = 'none';
+            if (selectedMode !== 'battle') {
+                document.getElementById('uploadZone').style.display = 'block';
+            }
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInput2').value = '';
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('roastBtn').style.display = 'block';
+        }
+
+        function copyRoast() {
+            const text = document.getElementById('roastText').textContent;
+            navigator.clipboard.writeText(`🔥 AI Roast Me: ${text}\n\nGet roasted FREE at ${window.location.origin}`);
+            alert('Copied! Paste it anywhere 🔥');
+        }
+
+        function shareTwitter() {
+            const text = encodeURIComponent('Just got roasted by AI 🔥');
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${window.location.href}`, '_blank');
+        }
+
+        function shareTikTok() {
+            const text = document.getElementById('roastText').textContent;
+            navigator.clipboard.writeText(text);
+            window.open('https://www.tiktok.com/upload', '_blank');
+            alert('Roast copied! Paste it as your TikTok caption 🔥');
+        }
+
+        // Init
+        selectMode('solo');
+        selectStyle('savage');
+    </script>
+</body>
+</html>

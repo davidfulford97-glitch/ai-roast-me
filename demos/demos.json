@@ -1,0 +1,42 @@
+[
+  {
+    "name": "01_sunglasses_bro",
+    "title": "Roasting the Sunglasses Indoors Bro",
+    "tiktok_hook": "POV: you let AI roast your selfie \ud83d\udd25",
+    "style": "savage",
+    "image": "C:\\Users\\david\\AIRoastMe\\demos\\01_sunglasses_bro.png",
+    "roast": "Bro looks like a default NPC from a 2004 Adobe Flash browser game that nobody played. Did you use MS Paint for your facial features, or did your artistic talent peak in kindergarten? That floating blue rectangle isn't a shirt, it's a loading error for a personality."
+  },
+  {
+    "name": "02_hat_guy",
+    "title": "Roasting the Hat Guy",
+    "tiktok_hook": "AI roasted my friend and he's not talking to me \ud83d\udc80",
+    "style": "dating",
+    "image": "C:\\Users\\david\\AIRoastMe\\demos\\02_hat_guy.png",
+    "roast": "Oh honey, where do I even begin? Your profile picture looks like a Microsoft Paint tutorial from 1998 generated entirely out of basic geometric shapes. That flat-top brown hat is sitting so low on your forehead it's basically a sensory deprivation chamber, and honestly, I don't blame you for wanting to block out the world after choosing a blue rectangle as your torso. Tinder would shadowban you instantly for suspected bot activity\u2014or worse, classify you as a low-polygon NPC in a video game no one wants to play. Swipe left, delete the app, and please consult a human mirror before trying this again."
+  },
+  {
+    "name": "03_grandma_roast",
+    "title": "Grandma Style Roast",
+    "tiktok_hook": "AI grandma roasted me and it was BRUTAL \ud83d\udc75\ud83d\udd25",
+    "style": "grandma",
+    "image": "C:\\Users\\david\\AIRoastMe\\demos\\03_grandma_roast.png",
+    "roast": "Oh, sweetheart, look at you\u2014keeping it so wonderfully abstract because who needs actual features, right? That beige oval is giving real \"boiled potato left out on the counter\" energy, but hey, at least your torso has clean corners! Your posture in that little blue rectangle is giving me serious second-grade dioramas-at-the-science-fair flashbacks. Honestly, it\u2019s brave of you to present yourself to the world as a Microsoft Paint starter pack, but don't worry, grandma loves you anyway!"
+  },
+  {
+    "name": "04_gamer_roast",
+    "title": "Gamer Style Roast",
+    "tiktok_hook": "Toxic gamer AI roasted my profile pic \ud83c\udfae\ud83d\udc80",
+    "style": "gamer",
+    "image": "C:\\Users\\david\\AIRoastMe\\demos\\04_gamer_roast.png",
+    "roast": "Bro really rolled up to the ranked lobby using the default profile picture from a 2011 browser game. You look like the tutorial NPC who tells you how to press 'W' and then immediately clips through the floor. Even my laggy teammate with 900 ping has more polygons than that haircut."
+  },
+  {
+    "name": "05_corporate_roast",
+    "title": "Corporate Roast",
+    "tiktok_hook": "AI evaluated my LinkedIn photo as a hire \ud83d\udcbc\ud83d\udd25",
+    "style": "corporate",
+    "image": "C:\\Users\\david\\AIRoastMe\\demos\\05_corporate_roast.png",
+    "roast": "Look, I admire that you came dressed as a thumb drive with a wig, but our \"Casual Friday\" policy doesn't extend to MS Paint avatars from 1998. Your two-circle head screams \"unpaid intern who still asks if replies go to all,\" and that blue rectangle torso tells me you have the structural integrity of wet cardboard. Your career prospects peak at middle-management in a mid-tier regional fax machine repair company, assuming the fax machine industry doesn't completely ghost you first."
+  }
+]

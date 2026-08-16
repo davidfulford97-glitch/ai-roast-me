@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: ai-roast-me
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CASHAPP_TAG
+        value: "$aireastme"
+        sync: false
+      - key: VENMO_TAG
+        value: "@airoastme"
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+    plan: free
+    healthCheckPath: /
+    autoDeploy: true
